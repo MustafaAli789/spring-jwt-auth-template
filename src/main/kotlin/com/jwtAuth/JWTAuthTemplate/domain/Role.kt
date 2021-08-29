@@ -15,5 +15,5 @@ import javax.persistence.Id
 data class Role(
                 @Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
-                private val id: Long,
-                private val name: String)
+                val id: Long,
+                val name: String)

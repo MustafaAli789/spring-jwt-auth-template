@@ -12,9 +12,9 @@ import javax.persistence.*
 data class User(
                 @Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
-                private val id: Long,
-                private val name: String,
-                private val username: String,
-                private val password: String,
+                val id: Long,
+                val name: String,
+                val username: String,
+                val password: String,
                 @ManyToMany(fetch = FetchType.EAGER)
-                private val roles: Collection<Role> = ArrayList())
+                val roles: MutableCollection<Role> = ArrayList())

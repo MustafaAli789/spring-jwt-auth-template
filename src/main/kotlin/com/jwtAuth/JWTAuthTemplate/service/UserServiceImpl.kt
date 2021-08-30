@@ -7,16 +7,36 @@ import com.jwtAuth.JWTAuthTemplate.repository.UserRepo
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j //logging
-class UserServiceImpl(val userRepo: UserRepo, val roleRepo: RoleRepo): UserService {
+class UserServiceImpl(val userRepo: UserRepo, val roleRepo: RoleRepo): UserService, UserDetailsService {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
+
+    override fun loadUserByUsername(username: String): UserDetails {
+        val user = userRepo.findByUsername(username)
+        if (user == null) {
+            logger.error("User not found in the database")
+            throw UsernameNotFoundException("User not found in database")
+        } else {
+            logger.info("User found in the database: {}", username)
+        }
+        val authorities: MutableList<SimpleGrantedAuthority>  = LinkedList()
+        user.roles.forEach { role ->
+            authorities.add(SimpleGrantedAuthority(role.name))
+        }
+        return org.springframework.security.core.userdetails.User(user.username, user.password, authorities)
+    }
 
     override fun saveUser(user: User): User {
         logger.info("Saving new user {} to db", user.name)

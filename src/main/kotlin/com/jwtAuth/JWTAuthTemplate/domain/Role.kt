@@ -11,7 +11,7 @@ import javax.persistence.*
 @NoArgsConstructor
 @AllArgsConstructor
 data class Role(
-                @Id
+        @Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
-                val id: Long,
-                val name: String)
+        val id: Long?,
+        val name: String)

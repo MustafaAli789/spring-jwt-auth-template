@@ -11,11 +11,11 @@ import javax.persistence.*
 @NoArgsConstructor
 @AllArgsConstructor
 data class User(
-                @Id
+        @Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
-                val id: Long,
-                val name: String,
-                val username: String,
-                val password: String,
-                @ManyToMany(fetch = FetchType.EAGER)
-                val roles: MutableCollection<Role> = ArrayList())
+        val id: Long?,
+        val name: String,
+        val username: String,
+        val password: String,
+        @ManyToMany(fetch = FetchType.EAGER)
+        val roles: MutableCollection<Role> = ArrayList())

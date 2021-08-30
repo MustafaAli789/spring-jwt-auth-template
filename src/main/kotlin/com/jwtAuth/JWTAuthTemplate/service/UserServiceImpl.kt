@@ -4,7 +4,6 @@ import com.jwtAuth.JWTAuthTemplate.domain.Role
 import com.jwtAuth.JWTAuthTemplate.domain.User
 import com.jwtAuth.JWTAuthTemplate.repository.RoleRepo
 import com.jwtAuth.JWTAuthTemplate.repository.UserRepo
-import jdk.nashorn.internal.runtime.regexp.joni.Config.log
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
@@ -31,14 +30,14 @@ class UserServiceImpl(val userRepo: UserRepo, val roleRepo: RoleRepo): UserServi
 
     override fun addRoleToUser(username: String, roleName: String) {
         logger.info("Adding role {} to user {}", roleName, username)
-        val user = userRepo.finderByUsername(username)
+        val user = userRepo.findByUsername(username)
         val role = roleRepo.findByName(roleName)
         user.roles.add(role)
     }
 
     override fun getUser(username: String): User {
         logger.info("Fetching user {}", username)
-        return userRepo.finderByUsername(username)
+        return userRepo.findByUsername(username)
     }
 
     override fun getUsers(): List<User> {

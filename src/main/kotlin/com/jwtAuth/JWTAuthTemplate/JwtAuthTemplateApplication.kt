@@ -31,11 +31,6 @@ class JwtAuthTemplateApplication(val userService: UserService) : CommandLineRunn
 		userService.addRoleToUser("arnold", "ROLE_USER")
 	}
 
-	@Bean
-	fun bCryptPasswordEncoder(): BCryptPasswordEncoder {
-		return BCryptPasswordEncoder()
-	}
-
 }
 
 fun main(args: Array<String>) {

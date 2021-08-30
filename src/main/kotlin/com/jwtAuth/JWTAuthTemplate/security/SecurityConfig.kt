@@ -28,12 +28,7 @@ class SecurityConfig(val userDetailsService: UserDetailsService,
         http.csrf().disable()
         http.sessionManagement().sessionCreationPolicy(STATELESS)
         http.authorizeRequests().anyRequest().permitAll()
-        http.addFilter(CustomAuthenticationFilter(authenticationManagerBean()))
+        http.addFilter(CustomAuthenticationFilter(super.authenticationManagerBean()))
     }
 
-    //why not just user super.auth manager bean directly?
-    @Bean
-    override fun authenticationManagerBean(): AuthenticationManager {
-        return super.authenticationManagerBean()
-    }
 }

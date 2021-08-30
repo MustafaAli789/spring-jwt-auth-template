@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Slf4j
-class CustomAuthenticationFilter(authenticationManager: AuthenticationManager) : UsernamePasswordAuthenticationFilter() {
+class CustomAuthenticationFilter(private val authManager: AuthenticationManager) : UsernamePasswordAuthenticationFilter() {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -25,8 +25,8 @@ class CustomAuthenticationFilter(authenticationManager: AuthenticationManager) :
         val password = request.getParameter("password")
         logger.info("Username is: $username")
         logger.info("Password is: $password")
-        val authToken: UsernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(username, password)
-        return authenticationManager.authenticate(authToken)
+        val authToken = UsernamePasswordAuthenticationToken(username, password)
+        return authManager.authenticate(authToken)
     }
 
     override fun successfulAuthentication(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain, authResult: Authentication) {

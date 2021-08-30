@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @SpringBootApplication
 class JwtAuthTemplateApplication(val userService: UserService) : CommandLineRunner {
@@ -28,6 +29,11 @@ class JwtAuthTemplateApplication(val userService: UserService) : CommandLineRunn
 		userService.addRoleToUser("arnold", "ROLE_SUPER_ADMIN")
 		userService.addRoleToUser("arnold", "ROLE_ADMIN")
 		userService.addRoleToUser("arnold", "ROLE_USER")
+	}
+
+	@Bean
+	fun bCryptPasswordEncoder(): BCryptPasswordEncoder {
+		return BCryptPasswordEncoder()
 	}
 
 }

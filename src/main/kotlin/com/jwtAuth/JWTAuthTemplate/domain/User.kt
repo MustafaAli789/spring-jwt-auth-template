@@ -7,15 +7,12 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "users")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 data class User(
         @Id
-                @GeneratedValue(strategy = GenerationType.AUTO)
+        @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Long?,
         val name: String,
         val username: String,
-        val password: String,
+        var password: String,
         @ManyToMany(fetch = FetchType.EAGER)
         val roles: MutableCollection<Role> = ArrayList())

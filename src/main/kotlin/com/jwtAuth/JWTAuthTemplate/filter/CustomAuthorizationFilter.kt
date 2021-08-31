@@ -25,7 +25,7 @@ class CustomAuthorizationFilter : OncePerRequestFilter() {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, fc: FilterChain) {
-        if (req.servletPath == "/api/login") {
+        if (req.servletPath == "/api/login" || req.servletPath == "/api/token/refresh") {
             fc.doFilter(req, res) //just pass on, dont do anything here
         } else {
             val authHeader = req.getHeader(AUTHORIZATION)
@@ -39,7 +39,7 @@ class CustomAuthorizationFilter : OncePerRequestFilter() {
                     val roles = ObjectMapper().readValue<Array<String>>(decodedjwt.getClaim("roles").toString())
                     val authorities = ArrayList<SimpleGrantedAuthority>()
                     roles.forEach { role ->
-                        authorities.add(SimpleGrantedAuthority(role as String))
+                        authorities.add(SimpleGrantedAuthority(role))
                     }
                     val authToken = UsernamePasswordAuthenticationToken(userName, null, authorities)
                     SecurityContextHolder.getContext().authentication = authToken

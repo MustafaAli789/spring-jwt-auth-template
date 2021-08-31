@@ -22,6 +22,7 @@ class CustomAuthenticationFilter(private val authManager: AuthenticationManager)
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     //Will be running whenever someone is signing in
+    //normally hooked up to /login
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication {
         val username = request.getParameter("username")
         val password = request.getParameter("password")
@@ -36,7 +37,7 @@ class CustomAuthenticationFilter(private val authManager: AuthenticationManager)
         val algorithm = Algorithm.HMAC256("YOUR_SECRET_HERE") //signing token with this
         val accessToken = JWT.create()
                 .withSubject(secUser.username)
-                .withExpiresAt(Date(System.currentTimeMillis() + 10*60*1000))
+                .withExpiresAt(Date(System.currentTimeMillis() + 10*1000))
                 .withIssuer(request.requestURL.toString())
                 .withClaim("roles", secUser.authorities.map { authority -> authority.authority })
                 .sign(algorithm)

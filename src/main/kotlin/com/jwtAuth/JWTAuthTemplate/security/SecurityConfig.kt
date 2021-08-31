@@ -3,6 +3,7 @@ package com.jwtAuth.JWTAuthTemplate.security
 import com.jwtAuth.JWTAuthTemplate.filter.CustomAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -25,10 +26,15 @@ class SecurityConfig(val userDetailsService: UserDetailsService,
     }
 
     override fun configure(http: HttpSecurity) {
+        val customFilter = CustomAuthenticationFilter(super.authenticationManagerBean())
+        customFilter.setFilterProcessesUrl("/api/login")
         http.csrf().disable()
         http.sessionManagement().sessionCreationPolicy(STATELESS)
-        http.authorizeRequests().anyRequest().permitAll()
-        http.addFilter(CustomAuthenticationFilter(super.authenticationManagerBean()))
+        http.authorizeRequests().antMatchers("/api/login/**").permitAll()
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
+        http.authorizeRequests().anyRequest().authenticated()
+        http.addFilter(customFilter)
     }
 
 }

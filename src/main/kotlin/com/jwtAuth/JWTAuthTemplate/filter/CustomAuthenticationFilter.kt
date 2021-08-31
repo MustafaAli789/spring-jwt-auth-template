@@ -2,8 +2,10 @@ package com.jwtAuth.JWTAuthTemplate.filter
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -31,7 +33,7 @@ class CustomAuthenticationFilter(private val authManager: AuthenticationManager)
 
     override fun successfulAuthentication(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain, authResult: Authentication) {
         val secUser = authResult.principal as User
-        val algorithm = Algorithm.HMAC256("YOUR_SECRET_HERE")
+        val algorithm = Algorithm.HMAC256("YOUR_SECRET_HERE") //signing token with this
         val accessToken = JWT.create()
                 .withSubject(secUser.username)
                 .withExpiresAt(Date(System.currentTimeMillis() + 10*60*1000))
@@ -43,7 +45,8 @@ class CustomAuthenticationFilter(private val authManager: AuthenticationManager)
                 .withExpiresAt(Date(System.currentTimeMillis() + 30*60*1000))
                 .withIssuer(request.requestURL.toString())
                 .sign(algorithm)
-        response.setHeader("accessToken", accessToken)
-        response.setHeader("refreshToken", refreshToken)
+        var tokens = mapOf("access_token" to accessToken, "refresh_token" to refreshToken)
+        response.contentType = APPLICATION_JSON_VALUE
+        ObjectMapper().writeValue(response.outputStream, tokens)
     }
 }

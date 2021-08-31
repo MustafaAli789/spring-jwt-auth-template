@@ -1,6 +1,7 @@
 package com.jwtAuth.JWTAuthTemplate.security
 
 import com.jwtAuth.JWTAuthTemplate.filter.CustomAuthenticationFilter
+import com.jwtAuth.JWTAuthTemplate.filter.CustomAuthorizationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.config.http.SessionCreationPolicy.STATELESS
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +37,7 @@ class SecurityConfig(val userDetailsService: UserDetailsService,
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
         http.authorizeRequests().anyRequest().authenticated()
         http.addFilter(customFilter)
+        http.addFilterBefore(CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter::class.java)
     }
 
 }

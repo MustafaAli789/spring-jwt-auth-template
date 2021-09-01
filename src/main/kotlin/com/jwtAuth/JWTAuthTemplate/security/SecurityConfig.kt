@@ -1,7 +1,6 @@
 package com.jwtAuth.JWTAuthTemplate.security
 
-import com.jwtAuth.JWTAuthTemplate.filter.CustomAuthenticationFilter
-import com.jwtAuth.JWTAuthTemplate.filter.CustomAuthorizationFilter
+import com.jwtAuth.JWTAuthTemplate.security.filter.CustomAuthorizationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -10,34 +9,37 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.config.http.SessionCreationPolicy.STATELESS
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(val userDetailsService: UserDetailsService,
-                     val bCryptPasswordEncoder: BCryptPasswordEncoder) : WebSecurityConfigurerAdapter() {
+                     val jwtUtil: JwtUtil,
+                     val bcryptPassEncoder: PasswordEncoder) : WebSecurityConfigurerAdapter() {
 
     //This method im assuming is impl first so as to setup the auth manager and then the second configures incoming http reqs
     // We implemented user details service interface in our own user service impl so this is gonna use that bean
     override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder)
+        auth.userDetailsService(userDetailsService).passwordEncoder(bcryptPassEncoder)
     }
 
+    // Any request to /api/auth/** is permitted without authenticated user but rest need to be authenticated
     override fun configure(http: HttpSecurity) {
-        val customFilter = CustomAuthenticationFilter(super.authenticationManagerBean())
-        customFilter.setFilterProcessesUrl("/api/login")
         http.csrf().disable()
         http.sessionManagement().sessionCreationPolicy(STATELESS)
-        http.authorizeRequests().antMatchers("/api/login/**", "/api/token/refresh").permitAll()
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
+        http.authorizeRequests().antMatchers("/api/auth/**").permitAll()
+        //http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
+        //http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
         http.authorizeRequests().anyRequest().authenticated()
-        http.addFilter(customFilter)
-        http.addFilterBefore(CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(CustomAuthorizationFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
     }
 
+    @Bean
+    override fun authenticationManagerBean(): AuthenticationManager {
+        return super.authenticationManagerBean()
+    }
 }

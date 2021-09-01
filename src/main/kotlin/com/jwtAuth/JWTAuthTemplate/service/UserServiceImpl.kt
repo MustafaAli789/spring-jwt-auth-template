@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -22,7 +23,7 @@ import java.util.*
 @Slf4j //logging
 class UserServiceImpl(val userRepo: UserRepo,
                       val roleRepo: RoleRepo,
-                      private val passEncoder: BCryptPasswordEncoder): UserService, UserDetailsService {
+                      private val bcryptPassEncoder: PasswordEncoder): UserService, UserDetailsService {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -43,7 +44,7 @@ class UserServiceImpl(val userRepo: UserRepo,
 
     override fun saveUser(user: User): User {
         logger.info("Saving new user {} to db", user.name)
-        user.password = passEncoder.encode(user.password).toString()
+        user.password = bcryptPassEncoder.encode(user.password).toString()
         return userRepo.save(user)
     }
 

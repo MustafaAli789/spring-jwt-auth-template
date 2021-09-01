@@ -50,43 +50,6 @@ class UserController(val userService: UserService) {
         userService.addRoleToUser(roleToUserForm.username, roleToUserForm.roleName)
         return ResponseEntity.ok().build()
     }
-
-    @GetMapping("/token/refresh")
-    fun refreshToken(req: HttpServletRequest, res: HttpServletResponse) {
-        val authHeader = req.getHeader(HttpHeaders.AUTHORIZATION)
-        if (authHeader !== null && authHeader.startsWith("Bearer ")) {
-            try {
-                val refreshToken = authHeader.substring("Bearer ".length)
-                val algorithm = Algorithm.HMAC256("YOUR_SECRET_HERE")
-                val verifier = JWT.require(algorithm).build()
-                val decodedjwt = verifier.verify(refreshToken)
-                val userName = decodedjwt.subject
-                val user = userService.getUser(userName)
-
-                val accessToken = JWT.create()
-                        .withSubject(user.username)
-                        .withExpiresAt(Date(System.currentTimeMillis() + 10*60*1000))
-                        .withIssuer(req.requestURL.toString())
-                        .withClaim("roles", user.roles.map { role -> role.name })
-                        .sign(algorithm)
-
-                var tokens = mapOf("access_token" to accessToken)
-                res.contentType = MediaType.APPLICATION_JSON_VALUE
-                ObjectMapper().writeValue(res.outputStream, tokens)
-
-            } catch (e: Exception) {
-                res.setHeader("error", e.message)
-                res.status = 403
-                //res.sendError(403)
-
-                var errors = mapOf("error_msg" to e.message)
-                res.contentType = MediaType.APPLICATION_JSON_VALUE
-                ObjectMapper().writeValue(res.outputStream, errors)
-            }
-        } else {
-            throw RuntimeException("Refresh token is missing")
-        }
-    }
 }
 
 data class RoleToUserForm(val username: String, val roleName: String)
